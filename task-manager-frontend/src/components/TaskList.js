@@ -6,22 +6,35 @@ const TaskList = ({ token }) => {
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', description: '', deadline: '' });
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('');
+  const [sortBy, setSortBy] = useState('');
 
-  const fetchTasks = async () => {
-    const res = await axios.get('/api/tasks', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setTasks(res.data);
+  useEffect(() => {
+    fetchFilteredTasks();
+  }, [search, status, sortBy]);
+
+  const fetchFilteredTasks = async () => {
+    try {
+      const res = await axios.get('/api/tasks/search', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { title: search, status, sortBy }
+      });
+      setTasks(res.data);
+    } catch (err) {
+      console.error('Error fetching tasks:', err);
+    }
   };
 
   const handleDelete = async (id) => {
-    await axios.delete(`/api/tasks/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setTasks(tasks.filter(t => t._id !== id));
+    try {
+      await axios.delete(`/api/tasks/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setTasks(tasks.filter(t => t._id !== id));
+    } catch (err) {
+      console.error('Error deleting task:', err);
+    }
   };
 
   const startEditing = (task) => {
@@ -35,16 +48,42 @@ const TaskList = ({ token }) => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    await axios.put(`/api/tasks/${editingTaskId}`, editForm, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setEditingTaskId(null);
-    fetchTasks();
+    try {
+      await axios.put(`/api/tasks/${editingTaskId}`, editForm, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setEditingTaskId(null);
+      fetchFilteredTasks();
+    } catch (err) {
+      console.error('Error updating task:', err);
+    }
   };
 
   return (
     <div>
       <h2>Your Tasks</h2>
+
+      {/* 🔍 Filter Controls */}
+      <div style={{ marginBottom: '1rem' }}>
+        <input
+          placeholder="Search by title"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        <select value={status} onChange={e => setStatus(e.target.value)}>
+          <option value="">All</option>
+          <option value="completed">Completed</option>
+          <option value="in progress">In Progress</option>
+          <option value="pending">Pending</option>
+        </select>
+        <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
+          <option value="">Sort By</option>
+          <option value="deadline">Deadline</option>
+          <option value="priority">Priority</option>
+        </select>
+      </div>
+
+      {/* 📋 Task List */}
       <ul>
         {tasks.map(task => (
           <li key={task._id}>
@@ -66,7 +105,7 @@ const TaskList = ({ token }) => {
                   onChange={e => setEditForm({ ...editForm, deadline: e.target.value })}
                 />
                 <button type="submit">Save</button>
-                <button onClick={() => setEditingTaskId(null)}>Cancel</button>
+                <button type="button" onClick={() => setEditingTaskId(null)}>Cancel</button>
               </form>
             ) : (
               <>

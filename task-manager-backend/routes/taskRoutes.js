@@ -14,6 +14,20 @@ router.get('/', async (req, res) => {
   const tasks = await Task.find();
   res.json(tasks);
 });
+router.get('/search', async (req, res) => {
+  const { status, title, sortBy } = req.query;
+  const query = {};
+  if (status) query.status = status;
+  if (title) query.title = { $regex: title, $options: 'i' };
+
+  let sortOption = {};
+  if (sortBy === 'deadline') sortOption.deadline = 1;
+  if (sortBy === 'priority') sortOption.priority = -1;
+
+  const tasks = await Task.find(query).sort(sortOption);
+  res.json(tasks);
+});
+
 
 // Update Task
 router.put('/:id', async (req, res) => {
