@@ -9,6 +9,10 @@ const taskSchema = new mongoose.Schema({
     enum: ['pending', 'in progress', 'completed'],
     default: 'pending'
   },
+  priority: {
+  type: Number,
+  default: 1
+},
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
