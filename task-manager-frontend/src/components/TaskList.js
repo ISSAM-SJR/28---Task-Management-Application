@@ -16,10 +16,11 @@ const TaskList = ({ token }) => {
 
   const fetchFilteredTasks = async () => {
     try {
-      const res = await axios.get('/api/tasks/search', {
-        headers: { Authorization: `Bearer ${token}` },
-        params: { title: search, status, sortBy }
-      });
+      const res = await axios.get('https://your-backend.onrender.com/api/tasks/search', {
+  headers: { Authorization: `Bearer ${token}` },
+  params: { title: search, status, sortBy }
+});
+
       setTasks(res.data);
     } catch (err) {
       console.error('Error fetching tasks:', err);
@@ -28,9 +29,10 @@ const TaskList = ({ token }) => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/api/tasks/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.delete(`https://your-backend.onrender.com/api/tasks/${id}`, {
+  headers: { Authorization: `Bearer ${token}` }
+});
+
       setTasks(tasks.filter(t => t._id !== id));
     } catch (err) {
       console.error('Error deleting task:', err);
@@ -49,9 +51,10 @@ const TaskList = ({ token }) => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`/api/tasks/${editingTaskId}`, editForm, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.put(`https://your-backend.onrender.com/api/tasks/${editingTaskId}`, editForm, {
+  headers: { Authorization: `Bearer ${token}` }
+});
+
       setEditingTaskId(null);
       fetchFilteredTasks();
     } catch (err) {
