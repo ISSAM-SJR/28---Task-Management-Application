@@ -25,6 +25,11 @@ app.use(express.json());
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 
+// ✅ Root route for Render health check
+app.get('/', (req, res) => {
+  res.send('Task Management API is running');
+});
+
 // ✅ Debug log to confirm env is loaded
 console.log('MONGO_URI:', process.env.MONGO_URI);
 
@@ -32,7 +37,6 @@ console.log('MONGO_URI:', process.env.MONGO_URI);
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
-
 
 // ✅ Server (fallback port for local dev)
 const PORT = process.env.PORT || 5000;
