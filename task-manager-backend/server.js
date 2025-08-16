@@ -1,41 +1,33 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../..env') }); // Load .env from parent folder
+require('dotenv').config();
 
 const taskRoutes = require('./routes/taskRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// ✅ CORS (important for frontend-backend connection)
+const allowedOrigins = [
+  "http://localhost:5173", // for local frontend (Vite)
+  "https://task-manager-frontend.onrender.com" // replace with your Render frontend URL
+];
+app.use(cors({ origin: allowedOrigins, credentials: true }));
+
 app.use(express.json());
 
-// API Routes
-app.use('/api/tasks', taskRoutes); // ✅ All task routes handled inside taskRoutes.js
-app.use('/api/users', userRoutes); // ✅ User routes
+// ✅ Routes
+app.use('/api/tasks', taskRoutes);
+app.use('/api/users', userRoutes);
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+// ✅ Database connection
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Serve Frontend in Production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../task-manager-frontend/build')));
-
-  // 🔧 FIXED wildcard route for Express v5
-  app.get('/:catchAll(*)', (req, res) => {
-    res.sendFile(path.join(__dirname, '../task-manager-frontend/build/index.html'));
-  });
-}
-
-// Start Server
-app.listen(process.env.PORT, () => {
-  console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${process.env.PORT}`);
+// ✅ Server (fallback port for local dev)
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
