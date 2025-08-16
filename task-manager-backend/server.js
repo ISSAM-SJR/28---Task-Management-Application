@@ -1,7 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
+const path = require('path');
+const dotenv = require('dotenv');
+
+// ✅ Load environment variables from custom file named "..env"
+dotenv.config({ path: path.join(__dirname, '..env') });
 
 const taskRoutes = require('./routes/taskRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -21,10 +25,14 @@ app.use(express.json());
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 
+// ✅ Debug log to confirm env is loaded
+console.log('MONGO_URI:', process.env.MONGO_URI);
+
 // ✅ Database connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
+
 
 // ✅ Server (fallback port for local dev)
 const PORT = process.env.PORT || 5000;
