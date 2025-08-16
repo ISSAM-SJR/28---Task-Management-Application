@@ -29,7 +29,8 @@ mongoose.connect(process.env.MONGO_URI, {
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../task-manager-frontend/build')));
 
-  app.get('*', (req, res) => {
+  // 🔧 FIXED wildcard route for Express v5
+  app.get('/:catchAll(*)', (req, res) => {
     res.sendFile(path.join(__dirname, '../task-manager-frontend/build/index.html'));
   });
 }
